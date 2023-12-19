@@ -99,8 +99,7 @@ class MerchantService
 
         foreach ($unpaidOrders as $order) {
             // Dispatching a job for processing the payout
-            PayoutOrderJob::dispatch($order)->onQueue('payout'); // Specify the queue if required
+            PayoutOrderJob::dispatch($order)->onQueue('payout');
         }
-        return $unpaidOrders;
     }
 }

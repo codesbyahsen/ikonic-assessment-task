@@ -83,6 +83,7 @@ class AffiliateService
      * @param  string $merchantId
      * @param  string $name
      * @param  string $email
+     * @return User
      */
     public function createNewUser($merchantId, $name, $email): User
     {
