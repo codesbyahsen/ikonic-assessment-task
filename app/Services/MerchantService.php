@@ -7,6 +7,7 @@ use App\Models\Affiliate;
 use App\Models\Merchant;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class MerchantService
 {
@@ -20,7 +21,22 @@ class MerchantService
      */
     public function register(array $data): Merchant
     {
-        // TODO: Complete this method
+        try {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'type' => User::TYPE_MERCHANT,
+                'password' => $data['api_key']
+            ]);
+
+            return $user->merchant()->create([
+                'user_id' => $user->id,
+                'domain' => $data['domain'],
+                'display_name' => $data['name']
+            ]);
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
     }
 
     /**
@@ -31,7 +47,26 @@ class MerchantService
      */
     public function updateMerchant(User $user, array $data)
     {
-        // TODO: Complete this method
+        try {
+            $merchant = $user->merchant()->firstOrFail();
+
+            // update merchant
+            $merchant->update([
+                'domain' => $data['domain'],
+                'display_name' => $data['name']
+            ]);
+
+            // update user associated with merchant
+            $user->update([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => $data['api_key']
+            ]);
+        } catch (ModelNotFoundException $exception) {
+            throw new ModelNotFoundException('Merchant Not Found');
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
     }
 
     /**
@@ -43,7 +78,12 @@ class MerchantService
      */
     public function findMerchantByEmail(string $email): ?Merchant
     {
-        // TODO: Complete this method
+        try {
+            $user = User::where('email', $email)->first();
+            return $user?->merchant()->first();
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
     }
 
     /**
