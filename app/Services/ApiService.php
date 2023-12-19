@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
-use App\Models\Affiliate;
-use App\Models\Merchant;
-use Illuminate\Support\Str;
+use App\Models\Order;
 use RuntimeException;
+use App\Models\Merchant;
+use App\Models\Affiliate;
+use Illuminate\Support\Str;
+use App\Jobs\PayoutOrderJob;
 
 /**
  * You don't need to do anything here. This is just to help
@@ -37,6 +39,11 @@ class ApiService
      */
     public function sendPayout(string $email, float $amount)
     {
-        //
+        $orders = Order::where('payout_status', Order::STATUS_UNPAID)->get();
+
+        foreach ($orders as $order) {
+            // Dispatching job with instance of the order
+            PayoutOrderJob::dispatch($order);
+        }
     }
 }
