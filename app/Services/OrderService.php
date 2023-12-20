@@ -33,6 +33,7 @@ class OrderService
 
         // Find or create an affiliate based on customer email
         $affiliate = Affiliate::where('discount_code', $data['discount_code'])->first();
+        $commissionRate = $affiliate?->commission_rate;
 
         if (!$affiliate) {
             // Create a new affiliate if not found
@@ -43,14 +44,15 @@ class OrderService
                 $data['customer_name'],
                 $merchant->default_commission_rate
             );
+            $commissionRate = $affiliate?->commission_rate;
         }
-        $merchant = Merchant::where('domain', $data['merchant_domain'])->first();
 
+        // creating order
         Order::create([
             'affiliate_id' => $affiliate?->id,
-            'merchant_id' => $merchant?->id,
+            'merchant_id' => $affiliate?->merchant?->id,
             'subtotal' => $data['subtotal_price'],
-            'commission_owed' => $data['subtotal_price'] * $affiliate->commission_rate,
+            'commission_owed' => $data['subtotal_price'] * $commissionRate,
             'payout_status' => Order::STATUS_UNPAID,
             'external_order_id' => $data['order_id']
         ]);

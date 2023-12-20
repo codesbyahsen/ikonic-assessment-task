@@ -31,7 +31,7 @@ class MerchantController extends Controller
 
         return response()->json([
             'count' => $orders->count(),
-            'commission_owed' => $orders->where('payout_status', Order::STATUS_UNPAID)->whereHas('affiliate')->sum('commission_owed'),
+            'commissions_owed' => $orders->where('payout_status', Order::STATUS_UNPAID)->whereHas('affiliate')->sum('commission_owed'),
             'revenue' => $orders->sum('subtotal'),
         ]);
     }
